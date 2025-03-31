@@ -1,1 +1,0 @@
-# AI-Medical-Assistent
