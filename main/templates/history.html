@@ -1,0 +1,456 @@
+{% extends "home.html" %}
+{% block content %}
+  {% load static %}
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    /* Optimize transitions */
+    * {
+        transition: none !important; /* Remove default transitions */
+    }
+
+    /* Theme variables */
+    :root {
+        --text-primary: #1a202c;
+        --text-secondary: #4a5568;
+        --bg-primary: #ffffff;
+        --bg-secondary: #f7fafc;
+        --border-color: #e2e8f0;
+        --card-text: #1a202c;
+        --input-text: #1a202c;
+        --input-bg: #ffffff;
+        --table-text: #1a202c;
+        --pagination-text: #1a202c;
+    }
+
+    .dark {
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e0;
+        --bg-primary: #1a202c;
+        --bg-secondary: #2d3748;
+        --border-color: #4a5568;
+        --card-text: #ffffff;
+        --input-text: #ffffff;
+        --input-bg: #374151;
+        --table-text: #ffffff;
+        --pagination-text: #ffffff;
+    }
+
+    /* Optimized specific transitions */
+    .theme-card,
+    .filter-input,
+    .pagination a,
+    .history-table-text,
+    .model-info,
+    .date-info {
+        transition: background-color 0.2s ease-out, 
+                    color 0.2s ease-out, 
+                    border-color 0.2s ease-out !important;
+        will-change: background-color, color, border-color;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
+
+    /* Filter inputs optimization */
+    .filter-input {
+        color: var(--input-text) !important;
+        background-color: var(--input-bg) !important;
+        border-color: var(--border-color);
+    }
+
+    /* Table content optimization */
+    .history-table-text {
+        color: var(--table-text) !important;
+    }
+
+    /* Pagination optimization */
+    .pagination {
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
+
+    .pagination a {
+        color: var(--pagination-text) !important;
+        background-color: var(--bg-secondary);
+        border-color: var(--border-color);
+    }
+
+    /* Hover effects optimization */
+    .hover\:bg-gray-50:hover {
+        background-color: var(--bg-secondary);
+        transition: background-color 0.2s ease-out;
+    }
+
+    /* Button optimization */
+    button {
+        transition: all 0.2s ease-out !important;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
+
+    /* Form elements optimization */
+    input, select, textarea {
+        transition: all 0.2s ease-out !important;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
+
+    /* Add a transition for all elements */
+    * {
+        transition: background-color 0.3s ease, 
+                    color 0.3s ease, 
+                    border-color 0.3s ease, 
+                    box-shadow 0.3s ease !important;
+    }
+
+    /* Apply theme variables */
+    .theme-card {
+        background-color: var(--card-bg); /* Use the card background variable */
+        border-color: var(--border-color);
+        color: var(--card-text);
+        box-shadow: var(--card-shadow);
+    }
+
+    /* Ensure text colors are visible in dark mode */
+    .text-gray-800 {
+        color: white; /* Change to white for better visibility */
+    }
+
+    .text-gray-600 {
+        color: white; /* Change to white for better visibility */
+    }
+
+    .text-gray-500 {
+        color: white; /* Change to white for better visibility */
+    }
+
+    .bg-gray-50 {
+        background-color: var(--bg-secondary); /* Use secondary background color */
+    }
+
+    /* Specific styles for the result badges */
+    .result-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        color: white; /* Change text color to white for better visibility */
+    }
+
+    .result-normal {
+        background-color: #D1FAE5; /* Light green */
+        color: #065F46; /* Dark green */
+    }
+
+    .result-abnormal {
+        background-color: #FEE2E2; /* Light red */
+        color: #B91C1C; /* Dark red */
+    }
+
+    /* Ensure filter labels and inputs are visible */
+    .filter-label {
+        color: white; /* Ensure labels are visible */
+    }
+
+    /* Style for select dropdowns */
+    select.filter-input {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Style for select options */
+    .filter-input option {
+        background-color: var(--input-bg);
+        color: var(--input-text);
+    }
+
+    /* Ensure placeholder text is visible */
+    .filter-input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    /* Pagination styles */
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: var(--card-bg); /* Ensure background matches theme */
+        border-radius: 0.375rem;
+    }
+
+    .pagination a:hover {
+        background-color: var(--bg-secondary); /* Change background on hover */
+        color: var(--pagination-text) !important;
+    }
+
+    .pagination .active {
+        background-color: var(--bg-primary); /* Active page background */
+        color: var(--pagination-text) !important;
+        font-weight: bold; /* Make active page bold */
+    }
+
+    /* Pagination info text color */
+    .pagination-info {
+        color: var(--pagination-text) !important;
+    }
+
+    /* Update card content text color */
+    .theme-card .text-gray-600 {
+        color: var(--card-text) !important;
+    }
+
+    /* Update list items in cards */
+    .theme-card ul li {
+        color: var(--card-text) !important;
+    }
+
+    /* Update card description text */
+    .theme-card p {
+        color: var(--card-text) !important;
+    }
+
+    /* Specific styles for model names and dates */
+    .model-info {
+        color: var(--card-text) !important;
+    }
+
+    .date-info {
+        color: var(--card-text) !important;
+    }
+
+    /* Update the history items section */
+    .grid-cols-12 .text-sm {
+        color: var(--table-text) !important;
+    }
+
+    /* Style for pagination numbers */
+    .page-number {
+        color: var(--pagination-text) !important;
+    }
+
+    /* Add smooth transitions for buttons */
+    button {
+        transition: all 0.3s ease;
+    }
+
+    /* Add transitions for images */
+    img {
+        transition: filter 0.3s ease;
+    }
+
+    /* Add transitions for form elements */
+    input, select, textarea {
+        transition: all 0.3s ease;
+    }
+  </style>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Prediction History</h1>
+                <p class="text-gray-600 mt-2">View and manage your previous medical predictions</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="theme-card rounded-lg shadow-sm p-4 mb-6">
+                <form method="GET" class="flex flex-wrap gap-4 items-center">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-sm font-medium filter-label mb-1" for="date_range">Date Range</label>
+                        <select id="date_range" name="date_range" class="w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 filter-input">
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 3 months</option>
+                            <option value="all">All time</option>
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-sm font-medium filter-label mb-1" for="model_key">Model Type</label>
+                        <select id="model_key" name="model_key" class="w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 filter-input">
+                            <option value="">All Models</option>
+                            <option value="Respiratory">Respiratory</option>
+                            <option value="Alzheimers">Alzheimers</option>
+                            <option value="Brain_tumor">Brain Tumor</option>
+                            <option value="Diabetic">Diabetic</option>
+                            <option value="Kidney">Kidney</option>
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-sm font-medium filter-label mb-1" for="search">Search</label>
+                        <input type="text" 
+                               id="search" 
+                               name="search" 
+                               placeholder="Search predictions..." 
+                               class="w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 filter-input">
+                    </div>
+                    <div>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- History List -->
+            <div class="theme-card rounded-lg shadow-sm overflow-hidden">
+                <div class="min-w-full divide-y divide-gray-200">
+                    <!-- Headers -->
+                    <div class="bg-gray-50">
+                        <div class="grid grid-cols-12 gap-4 px-6 py-3">
+                            <div class="col-span-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</div>
+                            <div class="col-span-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</div>
+                            <div class="col-span-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model Used</div>
+                            <div class="col-span-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</div>
+                            <div class="col-span-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></div>
+                            <div class="col-span-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></div>
+                        </div>
+                    </div>
+
+                    <!-- History Items -->
+                    <div class="divide-y divide-gray-200">
+                        {% for history in history %}
+                        <div class="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50">
+                            <div class="col-span-2 flex items-center">
+                                <span class="text-sm history-table-text">{{ history.timestamp|date:"Y-m-d H:i" }}</span>
+                            </div>
+                            <div class="col-span-2">
+                                {% if history.image %}
+                                    <img src="{{ history.image.url }}" alt="Medical scan" class="h-16 w-16 rounded-lg object-cover"/>
+                                {% else %}
+                                    <span class="text-gray-400">No Image</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-span-2 flex items-center">
+                                <span class="text-sm history-table-text">{{ history.model_key }}</span>
+                            </div>
+                            <div class="col-span-2 flex items-center">
+                                <span class="result-badge 
+                                    {% if history.result == 'Normal' or history.result == 'Negative' or history.result == 'notumor' %} result-normal 
+                                    {% else %} result-abnormal {% endif %}">
+                                    {{ history.result }}
+                                </span>
+                            </div>
+                            <div class="col-span-2">
+                                {% if history.lime_image %}
+                                    <img src="{{ history.lime_image.url }}" alt="Medical scan" class="h-16 w-16 rounded-lg object-cover"/>
+                                {% else %}
+                                    <span class="text-gray-400">No Image</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-span-1">
+                                <a href="{% url 'del' history.id %}" class="delete-icon" title="Delete" style="color:blue;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="px-6 py-4 text-gray-500">No prediction history found.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if history.paginator.num_pages > 1 %}
+                <div class="theme-card px-4 py-3 border-t border-gray-200 sm:px-6 pagination">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            {% if history.has_previous %}
+                                <a href="?page={{ history.previous_page_number }}" class="px-4 py-2 border text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Previous
+                                </a>
+                            {% endif %}
+                            {% if history.has_next %}
+                                <a href="?page={{ history.next_page_number }}" class="ml-3 px-4 py-2 border text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Next
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm pagination-info">
+                                    Showing <span class="font-medium page-number">{{ history.start_index }}</span> 
+                                    to <span class="font-medium page-number">{{ history.end_index }}</span> 
+                                    of <span class="font-medium page-number">{{ history.paginator.count }}</span> results
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                    {% for i in history.paginator.page_range %}
+                                        <a href="?page={{ i }}" 
+                                           class="px-4 py-2 border {% if history.number == i %} active {% else %} text-gray-700 {% endif %} text-sm font-medium hover:bg-blue-100 page-number">
+                                            {{ i }}
+                                        </a>
+                                    {% endfor %}
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Optimize performance for history page elements
+    document.addEventListener('DOMContentLoaded', () => {
+        // Add hardware acceleration to key elements
+        const elementsToOptimize = document.querySelectorAll(
+            '.theme-card, .filter-input, .pagination, .history-table-text, button, input, select'
+        );
+
+        elementsToOptimize.forEach(element => {
+            element.style.transform = 'translateZ(0)';
+            element.style.backfaceVisibility = 'hidden';
+        });
+
+        // Optimize hover effects
+        const hoverElements = document.querySelectorAll('.hover\\:bg-gray-50');
+        hoverElements.forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                requestAnimationFrame(() => {
+                    element.style.backgroundColor = getComputedStyle(document.documentElement)
+                        .getPropertyValue('--bg-secondary');
+                });
+            });
+        });
+
+        // Optimize filter inputs
+        const filterInputs = document.querySelectorAll('.filter-input');
+        filterInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                requestAnimationFrame(() => {
+                    input.style.backgroundColor = getComputedStyle(document.documentElement)
+                        .getPropertyValue('--input-bg');
+                });
+            });
+        });
+    });
+
+    // Optimize theme changes
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class' && 
+                mutation.target.classList.contains('dark')) {
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.theme-card, .filter-input, .pagination a')
+                        .forEach(element => {
+                            element.style.transition = 'background-color 0.2s ease-out, color 0.2s ease-out';
+                        });
+                });
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true
+    });
+</script>
+{% endblock %}

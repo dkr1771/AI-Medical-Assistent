@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .password-wrapper {
+            position: relative;
+            display: flex; /* Use flexbox to align input and icon */
+            align-items: center; /* Vertically center items */
+        }
+        /* Ensure the input takes up most space */
+        .password-wrapper input[type="password"],
+        .password-wrapper input[type="text"] {
+             flex-grow: 1; /* Allow input to grow */
+             /* Ensure default form styles are applied if needed */
+             padding: 10px;
+             border: 1px solid #ddd;
+             border-radius: 0.75rem;
+             box-sizing: border-box; /* Include padding and border in width */
+             padding-right: 40px; /* Add space for the icon */
+        }
+
+        .eye-icon-toggle {
+            position: absolute;
+            right: 10px; /* Position icon inside the input area */
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d; /* Bootstrap secondary color */
+            z-index: 10; /* Ensure icon is above the input */
+            background: none; /* Ensure no background interferes */
+            border: none;
+            padding: 0 5px; /* Add some clickable padding */
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+        /* Test Icon */
+        .test-icon { color: blue; font-size: 20px; margin: 10px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        
+        <i class="fas fa-check test-icon"></i> Font Awesome Test
+        
+        {% if login_error %}
+            <div class="error-message">{{ login_error }}</div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+            
+            <div class="form-group">
+                {{ form.password.label_tag }}
+                <div class="password-wrapper">
+                    <input type="{{ form.password.field.widget.input_type }}"
+                           name="{{ form.password.name }}"
+                           id="{{ form.password.id_for_label }}"
+                           {% if form.password.field.required %}required{% endif %}
+                           placeholder="{{ form.password.field.widget.attrs.placeholder }}"
+                           class="{{ form.password.field.widget.attrs.class }}"
+                           style="{{ form.password.field.widget.attrs.style }}">
+                    <span class="eye-icon-toggle" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', this)">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                {{ form.password.errors }}
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    
+    <script>
+        function togglePasswordVisibility(fieldId, iconElement) {
+            const passwordField = document.getElementById(fieldId);
+            const icon = iconElement.querySelector('i');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html> 

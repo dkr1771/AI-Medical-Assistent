@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+    
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Medical Assistant - Home</title>
+    <link rel="shortcut icon" type="image/icon" href="{% static 'images/logo.png' %}" style="border-radius: 0.75rem;"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Add theme styles -->
+    <style>
+        /* Theme variables */
+        :root {
+            --text-primary: #1a202c;  /* Dark text for light theme */
+            --text-secondary: #4a5568;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --border-color: #e2e8f0;
+            --card-text: #1a202c;  /* Add this new variable for card text */
+        }
+
+        /* Dark theme variables */
+        .dark {
+            --text-primary: #ffffff;  /* Light text for dark theme */
+            --text-secondary: #cbd5e0;
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --border-color: #4a5568;
+            --card-text: #ffffff;  /* Add this new variable for card text */
+        }
+
+        /* Card styles */
+        .theme-card {
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Text styles */
+        .theme-text {
+            color: var(--text-primary);
+        }
+
+        .theme-text-secondary {
+            color: var(--text-secondary);
+        }
+
+        /* Update existing text classes */
+        .text-gray-800 {
+            color: var(--text-primary) !important;
+        }
+
+        .text-gray-600 {
+            color: var(--text-secondary) !important;
+        }
+
+        .text-gray-500 {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Light theme (default) */
+        .light {
+            --bg-primary: #EBF5FF;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #4B5563;
+            --border-color: #E5E7EB;
+            --card-bg: #FFFFFF;
+            --heading-color: #1F2937;
+            --input-bg: #FFFFFF;
+            --input-text: #1F2937;
+        }
+
+        /* Dark theme */
+        .dark {
+            --bg-primary: #111827;
+            --bg-secondary: #1F2937;
+            --text-primary: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --border-color: #374151;
+            --card-bg: #2D3748;
+            --heading-color: #F9FAFB;
+            --input-bg: #374151;
+            --input-text: #F9FAFB;
+        }
+
+        /* Apply theme variables */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .theme-card {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .theme-text-secondary {
+            color: var(--text-secondary);
+        }
+
+        .theme-heading {
+            color: var(--heading-color);
+        }
+
+        /* Add these new theme classes */
+        .theme-bg-secondary {
+            background-color: var(--bg-secondary);
+        }
+
+        .theme-border {
+            border-color: var(--border-color);
+        }
+
+        /* Update the select input styles */
+        .theme-input {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--border-color);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        /* Dark theme specific select styles */
+        .dark .theme-input {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23F9FAFB' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+        .theme-input option {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+        }
+
+        /* Remove the previous dark theme select styles if they exist */
+        .dark select.theme-input {
+            /* Remove any existing background-image properties here */
+        }
+
+        /* Update animation styles */
+        .theme-icon {
+            position: absolute;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        /* Sun icon animations */
+        #light-icon {
+            transform: rotate(90deg) scale(0);
+            opacity: 0;
+        }
+
+        .dark #light-icon {
+            transform: rotate(0) scale(1);
+            opacity: 1;
+        }
+
+        /* Moon icon animations */
+        #dark-icon {
+            transform: rotate(0) scale(1);
+            opacity: 1;
+        }
+
+        .dark #dark-icon {
+            transform: rotate(-90deg) scale(0);
+            opacity: 0;
+        }
+
+        /* Button hover effect */
+        #theme-toggle {
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        #theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        #theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        /* Card title styles */
+        .card-title {
+            color: white; /* Change to white for better visibility */
+        }
+
+        /* Ensure other text colors are also set to white */
+        .text-gray-800 {
+            color: white; /* Change to white for better visibility */
+        }
+
+        .text-gray-600 {
+            color: white; /* Change to white for better visibility */
+        }
+
+        .text-gray-500 {
+            color: white; /* Change to white for better visibility */
+        }
+
+        /* Update card content text color */
+        .theme-card .text-gray-600 {
+            color: var(--card-text) !important;
+        }
+
+        /* Update list items in cards */
+        .theme-card ul li {
+            color: var(--card-text) !important;
+        }
+
+        /* Update card description text */
+        .theme-card p {
+            color: var(--card-text) !important;
+        }
+
+        /* Specific styles for model names and dates */
+        .model-info {
+            color: var(--card-text) !important;
+        }
+
+        .date-info {
+            color: var(--card-text) !important;
+        }
+
+        /* Add transitions for theme switching */
+        :root {
+            /* ... existing variables ... */
+        }
+
+        /* Add transition for all elements */
+        * {
+            transition: background-color 0.3s ease, 
+                        color 0.3s ease, 
+                        border-color 0.3s ease, 
+                        box-shadow 0.3s ease !important;
+        }
+
+        /* Body transition */
+        body {
+            transition: background-color 0.3s ease;
+        }
+
+        /* Navigation transitions */
+        nav {
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Link transitions */
+        a {
+            transition: color 0.3s ease;
+        }
+
+        /* Button transitions */
+        button {
+            transition: all 0.3s ease;
+        }
+
+        /* Card transitions */
+        .theme-card {
+            transition: background-color 0.3s ease, 
+                       border-color 0.3s ease, 
+                       box-shadow 0.3s ease;
+        }
+
+        /* Text transitions */
+        .text-gray-800,
+        .text-gray-600,
+        .text-gray-500 {
+            transition: color 0.3s ease;
+        }
+
+        /* Optimize transitions */
+        * {
+            transition: none !important; /* Remove default transitions */
+        }
+
+        /* Specific optimized transitions */
+        body,
+        .theme-card,
+        .theme-text,
+        .theme-text-secondary,
+        .theme-heading,
+        .theme-bg-secondary,
+        .theme-border,
+        .theme-input,
+        nav,
+        button,
+        a {
+            transition: background-color 0.2s ease-out, 
+                        color 0.2s ease-out, 
+                        border-color 0.2s ease-out, 
+                        box-shadow 0.2s ease-out !important;
+        }
+
+        /* Optimize theme icon animations */
+        .theme-icon {
+            position: absolute;
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+            will-change: transform, opacity; /* Optimize performance */
+        }
+
+        /* Sun icon optimized animations */
+        #light-icon {
+            transform: rotate(90deg) scale(0);
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        .dark #light-icon {
+            transform: rotate(0) scale(1);
+            opacity: 1;
+        }
+
+        /* Moon icon optimized animations */
+        #dark-icon {
+            transform: rotate(0) scale(1);
+            opacity: 1;
+            will-change: transform, opacity;
+        }
+
+        .dark #dark-icon {
+            transform: rotate(-90deg) scale(0);
+            opacity: 0;
+        }
+
+        /* Optimize button hover effect */
+        #theme-toggle {
+            position: relative;
+            transition: transform 0.2s ease-out;
+            will-change: transform;
+            backface-visibility: hidden; /* Reduce visual glitches */
+            transform: translateZ(0); /* Enable hardware acceleration */
+        }
+
+        #theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        #theme-toggle:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="theme-card shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="" class="flex items-center">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-8 w-8 rounded-lg">
+                        <span class="ml-2 font-bold">AI Medical Assistant</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Theme toggle button - updated styling -->
+                    <button id="theme-toggle" 
+                            class="p-2 rounded-md text-sm font-medium relative theme-text-secondary hover:text-blue-600 dark:hover:text-blue-400 w-8 h-8">
+                        <!-- Sun icon -->
+                        <svg id="light-icon" class="theme-icon w-5 h-5 absolute inset-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
+                        <!-- Moon icon -->
+                        <svg id="dark-icon" class="theme-icon w-5 h-5 absolute inset-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <!-- Existing navigation items with theme classes -->
+                    <a href="{% url 'main' %}" 
+                       class="px-3 py-2 rounded-md text-sm font-medium flex items-center {% if request.resolver_match.url_name == 'main' %}text-blue-600 bg-blue-50 dark:bg-blue-900{% else %}theme-text-secondary hover:text-blue-600 dark:hover:text-blue-400{% endif %}">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        Home
+                    </a>
+                    
+                    <a href="{% url 'predict' %}" 
+                       class="px-3 py-2 rounded-md text-sm font-medium flex items-center {% if request.resolver_match.url_name == 'predict' %}text-blue-600 bg-blue-50 dark:bg-blue-900{% else %}theme-text-secondary hover:text-blue-600 dark:hover:text-blue-400{% endif %}">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        Disease Prediction
+                    </a>
+                    
+                    <a href="{% url 'history' %}" 
+                       class="px-3 py-2 rounded-md text-sm font-medium flex items-center {% if request.resolver_match.url_name == 'history' %}text-blue-600 bg-blue-50 dark:bg-blue-900{% else %}theme-text-secondary hover:text-blue-600 dark:hover:text-blue-400{% endif %}">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        History
+                    </a>
+                    
+                    <a href="{% url 'logout' %}" 
+                       class="px-3 py-2 rounded-md text-sm font-medium flex items-center theme-text-secondary hover:text-blue-600 dark:hover:text-blue-400">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+{% block content %}
+    <div class="container mx-auto px-4 py-12">
+        <div class="text-center mb-16">
+            <h1 class="text-5xl font-bold theme-heading mb-4">Advanced Medical Diagnosis</h1>
+            <p class="text-xl theme-text-secondary max-w-3xl mx-auto">Leveraging artificial intelligence to provide accurate and rapid disease detection through medical image analysis.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+            <div class="theme-card rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold theme-heading mb-2">Accurate Results</h3>
+                <p class="theme-text-secondary">High-precision disease detection using state-of-the-art AI models.</p>
+            </div>
+            <div class="theme-card rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold theme-heading mb-2">Rapid Analysis</h3>
+                <p class="theme-text-secondary">Get instant results for your medical image analysis needs.</p>
+            </div>
+            <div class="theme-card rounded-xl shadow-lg p-6 text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold theme-heading mb-2">Secure Platform</h3>
+                <p class="theme-text-secondary">Your medical data is protected with enterprise-grade security.</p>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'prediction' %}" class="inline-flex items-center bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold">
+                Get Started
+                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </div>
+        
+    </div>
+    <!-- Disease Information Section -->
+<div class="max-w-6xl mx-auto mb-16">
+    <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Supported Medical Conditions</h2>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Alzheimer's Card -->
+        <div class="theme-card rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <h3 class="text-xl font-bold text-white">Alzheimer's Detection</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Detects varying stages of dementia through brain scan analysis:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-2">
+                    <li>Non Demented</li>
+                    <li>Mild Dementia</li>
+                    <li>Moderate Dementia</li>
+                    <li>Very Mild Dementia</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Brain Tumor Card -->
+        <div class="theme-card rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <h3 class="text-xl font-bold text-white">Brain Tumor Analysis</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Identifies different types of brain tumors:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-2">
+                    <li>Glioma</li>
+                    <li>Meningioma</li>
+                    <li>No Tumor</li>
+                    <li>Pituitary Tumor</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Diabetic Retinopathy Card -->
+        <div class="theme-card rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <h3 class="text-xl font-bold text-white">Diabetic Retinopathy</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Screens for diabetic retinopathy in eye scans:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-2">
+                    <li>Diabetic Retinopathy Present</li>
+                    <li>No Diabetic Retinopathy</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Kidney Disease Card -->
+        <div class="theme-card rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <h3 class="text-xl font-bold text-white">Kidney Analysis</h3>
+            </div>
+            <div class="p-6">
+                <p class="model-info mb-4">Detects various kidney conditions through CT scans:</p>
+                <ul class="list-disc list-inside space-y-2">
+                    <li class="model-info">Kidney Cyst</li>
+                    <li class="model-info">Normal Kidney</li>
+                    <li class="model-info">Kidney Stone</li>
+                    <li class="model-info">Kidney Tumor</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Respiratory Conditions Card -->
+        <div class="theme-card rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <h3 class="text-xl font-bold text-white">Respiratory Analysis</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Identifies various respiratory conditions:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-2">
+                    <li>Bacterial Pneumonia</li>
+                    <li>COVID-19</li>
+                    <li>Normal</li>
+                    <li>Tuberculosis</li>
+                    <li>Viral Pneumonia</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Additional Info Card -->
+        <div class="theme-card rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <h3 class="text-xl font-bold text-white">How It Works</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Our AI-powered system:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-2">
+                    <li>Uses advanced neural networks</li>
+                    <li>Processes high-resolution medical images</li>
+                    <li>Provides rapid analysis</li>
+                    <li>Maintains medical-grade accuracy</li>
+                    <li>Supports multiple image formats</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+    {% endblock %}
+
+    <!-- Update the script section -->
+    <script>
+        // Theme toggle functionality with optimizations
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        let isThemeChanging = false; // Prevent multiple rapid toggles
+
+        // Function to set theme with optimized animation
+        function setTheme(theme, animate = true) {
+            if (isThemeChanging) return; // Prevent multiple rapid changes
+            isThemeChanging = true;
+
+            requestAnimationFrame(() => {
+                if (theme === 'dark') {
+                    html.classList.remove('light');
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                    html.classList.add('light');
+                }
+                localStorage.setItem('theme', theme);
+
+                // Reset the flag after animation completes
+                setTimeout(() => {
+                    isThemeChanging = false;
+                }, 200); // Match this with transition duration
+            });
+        }
+
+        // Initialize theme without animation
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme, false);
+
+        // Optimized theme toggle handler
+        themeToggle.addEventListener('click', () => {
+            if (isThemeChanging) return; // Prevent rapid toggles
+
+            const currentTheme = html.classList.contains('dark') ? 'light' : 'dark';
+            setTheme(currentTheme);
+        });
+
+        // Optimize performance with passive event listener
+        document.addEventListener('DOMContentLoaded', () => {
+            themeToggle.addEventListener('touchstart', () => {}, { passive: true });
+        });
+
+        // Optimize theme initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add hardware acceleration to key elements
+            const elementsToOptimize = document.querySelectorAll('.theme-card, .theme-icon, #theme-toggle');
+            elementsToOptimize.forEach(element => {
+                element.style.transform = 'translateZ(0)';
+                element.style.backfaceVisibility = 'hidden';
+            });
+        });
+    </script>
+</body>
+</html>

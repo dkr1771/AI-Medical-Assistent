@@ -1,0 +1,373 @@
+{% extends "home.html" %}
+{% block content %}
+{% load custom_filters %}
+{% load static %}
+<style>
+    /* Apply theme variables */
+    :root {
+        --text-primary: #1a202c;
+        --text-secondary: #4a5568;
+        --success-text: #065F46;  /* Dark green for success text */
+        --bg-primary: #ffffff;
+        --bg-secondary: #f7fafc;
+        --border-color: #e2e8f0;
+        --result-text: #1a202c;  /* Black text for results */
+    }
+
+    .dark {
+        --text-primary: #ffffff;
+        --text-secondary: #cbd5e0;
+        --success-text: #065F46;  /* Keep the same dark green for success text in dark mode */
+        --bg-primary: #1a202c;
+        --bg-secondary: #2d3748;
+        --border-color: #4a5568;
+        --result-text: #1a202c;  /* Keep black text for results in dark mode */
+    }
+
+    /* Theme card styles */
+    .theme-card {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    /* Analysis result styles */
+    .analysis-result {
+        color: var(--result-text) !important;  /* Use result text color */
+        font-weight: 500;
+    }
+
+    /* Update the success message background */
+    .bg-green-50 {
+        background-color: #D1FAE5 !important;  /* Light green background */
+    }
+
+    /* Update the success icon color */
+    .text-green-500 {
+        color: #059669 !important;  /* Green icon color */
+    }
+
+    /* Update the success message text */
+    .text-green-800 {
+        color: var(--result-text) !important;  /* Use result text color */
+    }
+
+    /* Other styles */
+    .text-gray-800 {
+        color: white; /* Change to white for better visibility */
+    }
+
+    .text-gray-600 {
+        color: white; /* Change to white for better visibility */
+    }
+
+    .text-gray-500 {
+        color: white; /* Change to white for better visibility */
+    }
+
+    /* Result section heading */
+    .result-heading {
+        color: var(--result-text) !important;
+    }
+
+    /* Update text colors for Analysis Results card */
+    .theme-card h2,
+    .theme-card h3,
+    .theme-card p {
+        color: black !important;
+    }
+
+    /* Dark mode text colors */
+    .dark .theme-card h2,
+    .dark .theme-card h3,
+    .dark .theme-card p {
+        color: white !important;
+    }
+
+    /* Exception for the green result box - always black */
+    .bg-green-50 p,
+    .dark .bg-green-50 p {
+        color: black !important;
+    }
+
+    /* Update the success message text */
+    .bg-green-50 p {
+        color: black !important;
+    }
+
+    /* Keep the prediction result text black in both themes */
+    .bg-green-50 .text-sm {
+        color: black !important;
+    }
+</style>
+
+<!-- Enhanced Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-70 hidden z-50 flex items-center justify-center">
+    <div class="theme-card p-8 rounded-xl shadow-2xl flex flex-col items-center max-w-md w-11/12">
+        <!-- Loading Animation -->
+        <div class="flex flex-col items-center space-y-4 mb-6">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent"></div>
+            <div class="animate-pulse flex space-x-2">
+                <div class="h-2 w-2 bg-blue-600 rounded-full"></div>
+                <div class="h-2 w-2 bg-blue-600 rounded-full delay-100"></div>
+                <div class="h-2 w-2 bg-blue-600 rounded-full delay-200"></div>
+            </div>
+        </div>
+        
+        <!-- Loading Status -->
+        <div class="text-center space-y-3">
+            <h3 class="text-xl font-bold text-gray-800" id="loading-status">Analyzing Image</h3>
+            <p class="text-gray-600" id="loading-detail">Please wait while we process your image</p>
+            
+            <!-- Progress Steps -->
+            <div class="flex flex-col space-y-2 mt-4 text-sm text-left">
+                <div class="flex items-center space-x-2" id="step1">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Preprocessing image...</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-400" id="step2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Applying AI model...</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-400" id="step3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Generating LIME explanation...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+    <!-- Header Section with Navigation -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-3">AI Medical Assistant</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto">Advanced disease prediction system powered by machine learning. Upload medical images for instant analysis and detection.</p>
+    </div>
+    
+    <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Form Section -->
+            <div class="theme-card rounded-xl shadow-lg p-6 order-3 md:order-1">
+                {% if error %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm">{{ error }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" action="{% url 'predict' %}" class="space-y-6" id="prediction-form">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block theme-heading font-medium mb-2">Select Disease Model</label>
+                        <select name="model_key" 
+                                required 
+                                class="theme-input w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <option value="" disabled selected>Choose a detection model</option>
+                            <option value="Alzheimers">Alzheimer's Detection</option>
+                            <option value="Brain_tumor">Brain Tumor Classification</option>
+                            <option value="Diabetic">Diabetic Retinopathy</option>
+                            <option value="Kidney">Kidney Disease Detection</option>
+                            <option value="Respiratory">Respiratory Disease Classification</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block theme-heading font-medium mb-2">Upload Medical Image</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 theme-border border-dashed rounded-lg hover:border-blue-500 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label class="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                                        <span>Upload a file</span>
+                                        <input type="file" name="imagefile" required accept="image/*" class="sr-only" id="imagefile" onchange="previewImage(event)">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                
+                                <!-- Image Preview Section -->
+                                <div id="image-preview-container" class="mt-2 hidden">
+                                    <h3 class="theme-heading">Image Preview:</h3>
+                                    <img id="image-preview" src="" alt="Image Preview" class="max-w-full h-auto mt-2 rounded-md">
+                                </div>
+                                
+                                <p class="text-xs theme-text-secondary">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                            id="submit-button">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        Analyze Image
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div class="order-1 md:order-1">
+                {% if prediction %}
+                <div class="theme-card rounded-xl shadow-lg p-12 space-y-6">
+                    <h2 class="text-2xl font-bold text-black mb-4">Analysis Results</h2>
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-black">{{ prediction }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% if image_url %}
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium text-black mb-2">Analyzed Image</h3>
+                        <img src="{{ image_url }}" alt="Analyzed Medical Image" class="w-full h-auto rounded-lg shadow">
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="theme-card rounded-xl shadow-lg p-6">
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <h3 class="mt-4 text-lg font-medium text-black">No Image Analyzed Yet</h3>
+                        <p class="mt-1 text-sm text-black">Upload an image and select a model to get started</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="order-1 md:order-2">
+                {% if prediction %}
+                <div class="theme-card rounded-xl shadow-lg p-6 space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">LIME Explanation</h2>
+                    
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Explanation Visualization</h3>
+                        {% if explained_image %}
+                        <div class="relative w-full aspect-square rounded-lg overflow-hidden">
+                            <div class="max-w-[300px] mx-auto">
+                                <img src="data:image/png;base64,{{ explained_image }}" 
+                                     alt="LIME Explanation" 
+                                     class="w-full h-full object-contain rounded-lg"
+                                     style="max-height: 300px; width: 100%; object-fit: contain;">
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">
+                            Regions colored in <span class="text-red-600 font-bold">solid red</span> with 
+                            <span class="text-yellow-500 font-bold">yellow</span> outlines indicate areas that 
+                            strongly influenced the model's prediction.
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('image-preview-container');
+            const imagePreview = document.getElementById('image-preview');
+        
+            if (file) {
+                // Create a URL for the file
+                const imageUrl = URL.createObjectURL(file);
+        
+                // Set the image source to the created URL
+                imagePreview.src = imageUrl;
+        
+                // Show the preview container
+                previewContainer.classList.remove('hidden');
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        }
+        
+        // Enhanced loading animation with steps
+        function updateLoadingStep(step) {
+            const steps = {
+                1: ['step1', 'Preprocessing image...'],
+                2: ['step2', 'Applying AI model...'],
+                3: ['step3', 'Generating LIME explanation...']
+            };
+            
+            Object.keys(steps).forEach(stepNum => {
+                const element = document.getElementById(steps[stepNum][0]);
+                if (stepNum <= step) {
+                    element.classList.remove('text-gray-400');
+                    element.classList.add('text-blue-600');
+                } else {
+                    element.classList.add('text-gray-400');
+                    element.classList.remove('text-blue-600');
+                }
+            });
+            
+            document.getElementById('loading-detail').textContent = steps[step][1];
+        }
+
+        // Form submission handler with enhanced loading animation
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.classList.remove('hidden');
+            
+            // Disable submit button
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            // Simulate progress steps (you can adjust timing based on your needs)
+            updateLoadingStep(1);
+            setTimeout(() => updateLoadingStep(2), 1500);
+            setTimeout(() => updateLoadingStep(3), 3000);
+            
+            // Form will submit normally
+            return true;
+        });
+
+        // Handle back button and page refresh
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                const submitButton = document.getElementById('submit-button');
+                
+                loadingOverlay.classList.add('hidden');
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+        // Prevent multiple submissions
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('loading-overlay').classList.contains('hidden')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+{% endblock %}
