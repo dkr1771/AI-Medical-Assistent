@@ -40,9 +40,7 @@ ENV/
 *.swo
 
 # ML Models (if they're large, consider using Git LFS)
-*.h5
-*.pkl
-*.model
+
 
 # OS
 .DS_Store
